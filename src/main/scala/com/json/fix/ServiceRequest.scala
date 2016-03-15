@@ -49,8 +49,15 @@ class ServiceRequest extends Actor with ActorLogging {
         )
 
       val urls = List(
-        "https://darknightly.frontlinesms.com/",
-        "https://cloud.frontlinesms.com/"
+        "https://beinafuu.co.ke/sms/process_keyword_order",
+        "https://backend.steama.co/at/",
+        "https://sambaza.dayliff.com/custom_post/update_status",
+        "https://secure.changa.co.ke/index.php/delivery",
+        "https://dumaworks.com/africastalking/delivery_report/",
+        "https://api.telerivet.com/gateway/PN6c6ca9f19cf168f7/41e6e598a8/status",
+        "https://www.zoompesa.com/zpdev/process_africaistalking_callback.php",
+        "https://www.chura.co.ke/atcb/",
+        "https://mobi-remit.com/airtimecallback.php"
       )
 
       urls foreach(url => {
