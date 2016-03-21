@@ -37,18 +37,24 @@ class ServiceRequest extends Actor with ActorLogging {
         id = "ATx_2343523543624534636346"
       )
 
-      val logRequest: HttpRequest => HttpRequest = { r => log.debug(r.toString); r }
-      val logResponse: HttpResponse => HttpResponse = { r => log.debug(r.toString); r }
+      val logRequest: HttpRequest => HttpRequest = {
+        r => log.debug(r.toString)
+        r
+      }
+      val logResponse: HttpResponse => HttpResponse = { 
+        r => log.debug(r.toString)
+        r
+      }
 
-      val pipeline: HttpRequest => Future[HttpResponse] = (
-        //addHeader("Accept", "application/json")
-          logRequest
+      val pipeline: HttpRequest => Future[ApiResponse] = (
+        addHeader("Accept", "application/json")
+          ~>logRequest
           ~> sendReceive
           ~> logResponse
-          //~> unmarshal[ApiResponse]
+          ~> unmarshal[ApiResponse]
         )
 
-      val urls = List(
+     /* val urls = List(
         "https://beinafuu.co.ke/sms/process_keyword_order",
         "https://backend.steama.co/at/",
         "https://sambaza.dayliff.com/custom_post/update_status",
@@ -59,9 +65,13 @@ class ServiceRequest extends Actor with ActorLogging {
         "https://www.chura.co.ke/atcb/",
         "https://mobi-remit.com/airtimecallback.php"
       )
+     */
+      val urls = List(
+        "https://cloud.frontlinesms.com/api/1/customFconnection/4830"
+      )
 
       urls foreach(url => {
-          val response: Future[HttpResponse] = pipeline {
+          val response: Future[ApiResponse] = pipeline {
             Post(url, message)
           }
 
