@@ -12,15 +12,17 @@ import scala.util.{Failure, Success}
 import SprayJsonSupport._
 
 case class Message(from: String, to: String, text: String, date: String, id: String)
+case class Subscription(phoneNumber: String, shortCode: Int, keyword: String, updateType: String)
 
-case class ApiResponse(response: String)
+case class ApiResponse(success: Option[String], error: Option[String])
 case class ApiRequest(request: String)
 case object Poll
 
 object JsonElementFormat extends DefaultJsonProtocol {
   implicit val apiRequestFormat = jsonFormat1(ApiRequest)
-  implicit val apiResponseFormat = jsonFormat1(ApiResponse)
+  implicit val apiResponseFormat = jsonFormat2(ApiResponse)
   implicit val messageFormat = jsonFormat5(Message)
+  implicit val subscriptionFormat = jsonFormat4(Subscription)
 }
 
 class ServiceRequest extends Actor with ActorLogging {
@@ -37,11 +39,18 @@ class ServiceRequest extends Actor with ActorLogging {
         id = "ATx_2343523543624534636346"
       )
 
+      val subscription = Subscription(
+        phoneNumber = "+254701435178",
+        shortCode = 20880,
+        keyword = "winner",
+        updateType = "Addition"
+      )
+
       val logRequest: HttpRequest => HttpRequest = {
         r => log.debug(r.toString)
         r
       }
-      val logResponse: HttpResponse => HttpResponse = { 
+      val logResponse: HttpResponse => HttpResponse = {
         r => log.debug(r.toString)
         r
       }
@@ -52,15 +61,16 @@ class ServiceRequest extends Actor with ActorLogging {
           ~> sendReceive
           ~> logResponse
           ~> unmarshal[ApiResponse]
-        )
+      )
 
       val urls = List(
-        "https://cloud.frontlinesms.com/api/1/customFconnection/4830"
+        "https://cloud.frontlinesms.com/api/1/customFconnection/4830",
+        "https://www.tumacredo.com/top_up"
       )
 
       urls foreach(url => {
           val response: Future[ApiResponse] = pipeline {
-            Post(url, message)
+            Post(url, subscription)
           }
 
           response onComplete {
